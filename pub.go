@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"p2pdb-pubsub/discovery"
 	"time"
+
+	discovery "github.com/Rock-liy/p2pdb-discovery"
 
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 )

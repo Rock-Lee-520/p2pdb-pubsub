@@ -3,6 +3,7 @@ module p2pdb-pubsub
 go 1.17
 
 require (
+	github.com/Rock-liy/p2pdb-discovery v0.0.0-00010101000000-000000000000 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/btcsuite/btcd v0.22.1 // indirect
@@ -109,3 +110,5 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	lukechampine.com/blake3 v1.1.6 // indirect
 )
+
+replace github.com/Rock-liy/p2pdb-discovery => ../p2pdb-discovery
