@@ -111,4 +111,4 @@ require (
 	lukechampine.com/blake3 v1.1.6 // indirect
 )
 
-replace github.com/Rock-liy/p2pdb-discovery => ../p2pdb-discovery
+replace github.com/Rock-liyi/p2pdb-discovery => ../p2pdb-discovery

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	discovery "github.com/Rock-liy/p2pdb-discovery"
+	discovery "github.com/Rock-liyi/p2pdb-discovery"
 
 	debug "github.com/favframework/debug"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
