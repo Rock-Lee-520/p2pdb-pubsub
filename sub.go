@@ -16,7 +16,7 @@ func main() {
 	Discovery := discovery.NewDiscoveryFactory()
 	// create a new libp2p Host that listens on a random TCP port
 	h, err := Discovery.Create("/ip4/0.0.0.0/tcp/0")
-
+	debug.Dump(h.ID().String())
 	// create a new PubSub service using the GossipSub router
 	ps, err := pubsub.NewGossipSub(ctx, h)
 	if err != nil {
