@@ -32,7 +32,7 @@ type PubSub struct {
 const Topic string = ("p2pDB")
 const Address string = "/ip4/0.0.0.0/tcp/0"
 
-func (p2pdbPubSub *PubSub) InitPub() {
+func (p2pdbPubSub *PubSub) InitPublish() {
 	p2pdbPubSub.ctx = context.Background()
 	p2pdbPubSub.initDiscovery()
 
@@ -50,7 +50,12 @@ func (p2pdbPubSub *PubSub) InitPub() {
 	time.Sleep(1 * time.Second)
 }
 
-func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
+func (p2pdbPubSub *PubSub) Publish(message DataMessage) {
+
+	if p2pdbPubSub.topic == nil {
+		p2pdbPubSub.InitPublish()
+	}
+
 	data, err := json.Marshal(message)
 	if err != nil {
 		panic(err)
@@ -58,7 +63,7 @@ func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
 	p2pdbPubSub.topic.Publish(p2pdbPubSub.ctx, data)
 }
 
-func (p2pdbPubSub *PubSub) Sub() {
+func (p2pdbPubSub *PubSub) Subscribe() {
 
 	p2pdbPubSub.ctx = context.Background()
 
