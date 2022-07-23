@@ -2,8 +2,6 @@ module p2pdb-pubsub
 
 go 1.17
 
-replace github.com/Rock-liyi/p2pdb-discovery => ../p2pdb-discovery
-
 require (
 	github.com/Rock-liyi/p2pdb-discovery v0.0.0-00010101000000-000000000000
 	github.com/Rock-liyi/p2pdb-log v0.0.0-20220718124543-0bcc189e2a66
