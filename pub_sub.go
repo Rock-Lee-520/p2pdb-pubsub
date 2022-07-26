@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	discovery "github.com/Rock-liyi/p2pdb-discovery"
 	"github.com/libp2p/go-libp2p-core/host"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
-	"time"
 )
 
 // DataMessage gets converted to/from JSON and sent in the body of pubsub messages.
