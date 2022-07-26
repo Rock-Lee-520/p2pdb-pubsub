@@ -7,6 +7,7 @@ import (
 	"time"
 
 	discovery "github.com/Rock-liyi/p2pdb-discovery"
+	"github.com/Rock-liyi/p2pdb/application/event"
 	"github.com/libp2p/go-libp2p-core/host"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 )
@@ -95,7 +96,13 @@ func (p2pdbPubSub *PubSub) Sub() {
 		if err != nil {
 			continue
 		}
-		p2pdbPubSub.SubHandler(cm)
+
+		//recieve messages to other channels
+		var newMessage event.Message
+		newMessage.Data = cm.data
+		newMessage.Type = cm.topic
+		event.PublishSyncEvent(cm.topic, newMessage)
+		//p2pdbPubSub.SubHandler(cm)
 	}
 }
 

@@ -3,14 +3,15 @@ module p2pdb-pubsub
 go 1.17
 
 require (
-	github.com/Rock-liyi/p2pdb-discovery v0.0.0-00010101000000-000000000000
-	github.com/Rock-liyi/p2pdb-log v0.0.0-20220718124543-0bcc189e2a66
-	github.com/caarlos0/env/v6 v6.9.3
-	github.com/dolthub/vitess v0.0.0-20211215165926-1490f8c93e81
-	github.com/favframework/debug v0.0.0-20150708094948-5c7e73aafb21
-	github.com/joho/godotenv v1.4.0
+	github.com/Rock-liyi/p2pdb v0.0.3
+	github.com/Rock-liyi/p2pdb-discovery v0.0.0-20220722063818-588bb555997d
+	github.com/libp2p/go-libp2p-core v0.16.1
 	github.com/libp2p/go-libp2p-pubsub v0.7.1
 )
+
+// replace github.com/Rock-liyi/p2pdb-log => ../p2pdb-log
+
+// replace github.com/Rock-liyi/p2pdb-discovery => ../p2pdb-discovery
 
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
@@ -27,13 +28,13 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
+	github.com/favframework/debug v0.0.0-20150708094948-5c7e73aafb21 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -57,7 +58,6 @@ require (
 	github.com/libp2p/go-flow-metrics v0.0.3 // indirect
 	github.com/libp2p/go-libp2p v0.20.3 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.2.0 // indirect
-	github.com/libp2p/go-libp2p-core v0.16.1 // indirect
 	github.com/libp2p/go-libp2p-discovery v0.6.0 // indirect
 	github.com/libp2p/go-libp2p-peerstore v0.6.0 // indirect
 	github.com/libp2p/go-libp2p-resource-manager v0.3.0 // indirect
