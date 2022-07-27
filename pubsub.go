@@ -28,11 +28,12 @@ type PubSubInfterface interface {
 	GetType() string
 	SetType(Type string)
 	Pub(message DataMessage)
+	Sub() (*libpubsub.Subscription, error)
 	initDiscovery()
 }
 
 type PubSub struct {
-	h          host.Host
+	Host       host.Host
 	topic      *libpubsub.Topic
 	Type       string
 	SubHandler SubHandler
@@ -56,7 +57,7 @@ func (p2pdbPubSub *PubSub) InitPub() {
 	p2pdbPubSub.initDiscovery()
 
 	// create a new PubSub service using the GossipSub router
-	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.h)
+	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
 	if err != nil {
 		panic(err)
 	}
@@ -80,29 +81,53 @@ func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
 	p2pdbPubSub.topic.Publish(p2pdbPubSub.ctx, data)
 }
 
-func (p2pdbPubSub *PubSub) Sub() {
+func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, error) {
 
 	p2pdbPubSub.ctx = context.Background()
 
 	p2pdbPubSub.initDiscovery()
 
 	// create a new PubSub service using the GossipSub router
-	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.h)
+	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
 	if err != nil {
 		panic(err)
 	}
 
 	topic, err := ps.Join(Topic)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// and subscribe to it
 	sub, err := topic.Subscribe()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+	return sub, nil
+	// for {
+	// 	msg, err := sub.Next(p2pdbPubSub.ctx)
+	// 	if err != nil {
+	// 		fmt.Printf("error:%s\n", err.Error())
+	// 		panic(err)
+	// 		return
+	// 	}
+	// 	// only forward messages delivered by others
+	// 	cm := new(DataMessage)
+	// 	err = json.Unmarshal(msg.Data, cm)
+	// 	if err != nil {
+	// 		continue
+	// 	}
 
+	// 	//recieve messages to other channels
+	// 	var newMessage event.Message
+	// 	newMessage.Data = cm.data
+	// 	newMessage.Type = cm.topic
+	// 	event.PublishSyncEvent(cm.topic, newMessage)
+	// 	//p2pdbPubSub.SubHandler(cm)
+	// }
+}
+
+func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription) {
 	for {
 		msg, err := sub.Next(p2pdbPubSub.ctx)
 		if err != nil {
@@ -134,10 +159,10 @@ func (p2pdbPubSub *PubSub) initDiscovery() {
 	if err != nil {
 		panic(err)
 	}
-	p2pdbPubSub.h = h
+	p2pdbPubSub.Host = h
 
 	// setup local mDNS discovery
-	if err := p2pdbPubSub.discovery.SetupDiscovery(p2pdbPubSub.h); err != nil {
+	if err := p2pdbPubSub.discovery.SetupDiscovery(p2pdbPubSub.Host); err != nil {
 		panic(err)
 	}
 }
