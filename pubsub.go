@@ -9,7 +9,7 @@ import (
 	discovery "github.com/Rock-liyi/p2pdb-discovery"
 	"github.com/Rock-liyi/p2pdb/application/event"
 	"github.com/libp2p/go-libp2p-core/host"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	libpubsub "github.com/libp2p/go-libp2p-pubsub"
 )
 
 // DataMessage gets converted to/from JSON and sent in the body of pubsub messages.
@@ -23,28 +23,48 @@ type SubHandler interface {
 	SubHandler(DataMessage)
 }
 
+type PubSubInfterface interface {
+	InitPub()
+	GetType() string
+	SetType(Type string)
+	Pub(message DataMessage)
+	initDiscovery()
+}
+
 type PubSub struct {
 	h          host.Host
-	topic      *pubsub.Topic
+	topic      *libpubsub.Topic
+	Type       string
 	SubHandler SubHandler
 	ctx        context.Context
 	discovery  discovery.Discovery
 }
 
-const Topic string = ("p2pDB")
+const Topic string = ("p2pdb")
 const Address string = "/ip4/0.0.0.0/tcp/0"
+
+func (p2pdbPubSub *PubSub) GetType() string {
+	return p2pdbPubSub.Type
+}
+
+func (p2pdbPubSub *PubSub) SetType(Type string) {
+	p2pdbPubSub.Type = Type
+}
 
 func (p2pdbPubSub *PubSub) InitPub() {
 	p2pdbPubSub.ctx = context.Background()
 	p2pdbPubSub.initDiscovery()
 
 	// create a new PubSub service using the GossipSub router
-	ps, err := pubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.h)
+	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.h)
 	if err != nil {
 		panic(err)
 	}
+	if p2pdbPubSub.Type == "" {
+		p2pdbPubSub.Type = Topic
+	}
 
-	topic, err := ps.Join(Topic)
+	topic, err := ps.Join(p2pdbPubSub.Type)
 	if err != nil {
 		panic(err)
 	}
@@ -67,7 +87,7 @@ func (p2pdbPubSub *PubSub) Sub() {
 	p2pdbPubSub.initDiscovery()
 
 	// create a new PubSub service using the GossipSub router
-	ps, err := pubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.h)
+	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.h)
 	if err != nil {
 		panic(err)
 	}
