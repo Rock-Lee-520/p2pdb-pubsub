@@ -1,4 +1,4 @@
-module p2pdb-pubsub
+module github.com/Rock-liyi/p2pdb-pubsub
 
 go 1.17
 
