@@ -8,16 +8,10 @@ import (
 
 	discovery "github.com/Rock-liyi/p2pdb-discovery"
 	"github.com/Rock-liyi/p2pdb/application/event"
+	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
 	"github.com/libp2p/go-libp2p-core/host"
 	libpubsub "github.com/libp2p/go-libp2p-pubsub"
 )
-
-// DataMessage gets converted to/from JSON and sent in the body of pubsub messages.
-type DataMessage struct {
-	data      interface{}
-	topic     string
-	requestId string
-}
 
 type SubHandler interface {
 	SubHandler(DataMessage)
@@ -93,6 +87,7 @@ func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, error) {
 		panic(err)
 	}
 
+	log.Debug("topic is " + Topic)
 	topic, err := ps.Join(Topic)
 	if err != nil {
 		return nil, err
@@ -135,20 +130,35 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 			panic(err)
 			return
 		}
+
 		// only forward messages delivered by others
 		cm := new(DataMessage)
 		err = json.Unmarshal(msg.Data, cm)
 		if err != nil {
+
 			continue
 		}
 
 		//recieve messages to other channels
 		var newMessage event.Message
-		newMessage.Data = cm.data
-		newMessage.Type = cm.topic
-		event.PublishSyncEvent(cm.topic, newMessage)
+		newMessage.Data = cm.Data
+		newMessage.Type = cm.Type
+
+		event.PublishSyncEvent(cm.Type, newMessage)
 		//p2pdbPubSub.SubHandler(cm)
 	}
+}
+
+// DataMessage gets converted to/from JSON and sent in the body of pubsub messages.
+// type DataMessage struct {
+// 	data      interface{}
+// 	topic     string
+// 	requestId string
+// }
+
+type DataMessage struct {
+	Type string
+	Data interface{}
 }
 
 // initDiscovery
