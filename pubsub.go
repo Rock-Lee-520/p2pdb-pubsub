@@ -22,20 +22,21 @@ type PubSubInfterface interface {
 	GetType() string
 	SetType(Type string)
 	Pub(message DataMessage)
-	Sub() (*libpubsub.Subscription, error)
+	Sub() (*libpubsub.Subscription, *libpubsub.Topic, error)
 	initDiscovery()
 }
 
 type PubSub struct {
 	Host       host.Host
-	topic      *libpubsub.Topic
+	Topic      *libpubsub.Topic
 	Type       string
 	SubHandler SubHandler
 	ctx        context.Context
 	discovery  discovery.Discovery
+	Message    DataMessage
 }
 
-const Topic string = ("p2pdb")
+const GlobalTopic string = ("p2pdb")
 const Address string = "/ip4/0.0.0.0/tcp/0"
 
 func (p2pdbPubSub *PubSub) GetType() string {
@@ -56,15 +57,15 @@ func (p2pdbPubSub *PubSub) InitPub() {
 		panic(err)
 	}
 	if p2pdbPubSub.Type == "" {
-		p2pdbPubSub.Type = Topic
+		p2pdbPubSub.Type = GlobalTopic
 	}
 
 	topic, err := ps.Join(p2pdbPubSub.Type)
 	if err != nil {
 		panic(err)
 	}
-	p2pdbPubSub.topic = topic
-	time.Sleep(1 * time.Second)
+	p2pdbPubSub.Topic = topic
+	time.Sleep(5 * time.Second)
 }
 
 func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
@@ -72,10 +73,10 @@ func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
 	if err != nil {
 		panic(err)
 	}
-	p2pdbPubSub.topic.Publish(p2pdbPubSub.ctx, data)
+	p2pdbPubSub.Topic.Publish(p2pdbPubSub.ctx, data)
 }
 
-func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, error) {
+func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, *libpubsub.Topic, error) {
 
 	p2pdbPubSub.ctx = context.Background()
 
@@ -87,39 +88,18 @@ func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, error) {
 		panic(err)
 	}
 
-	log.Debug("topic is " + Topic)
-	topic, err := ps.Join(Topic)
+	log.Debug("topic is " + GlobalTopic)
+	topic, err := ps.Join(GlobalTopic)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// and subscribe to it
 	sub, err := topic.Subscribe()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return sub, nil
-	// for {
-	// 	msg, err := sub.Next(p2pdbPubSub.ctx)
-	// 	if err != nil {
-	// 		fmt.Printf("error:%s\n", err.Error())
-	// 		panic(err)
-	// 		return
-	// 	}
-	// 	// only forward messages delivered by others
-	// 	cm := new(DataMessage)
-	// 	err = json.Unmarshal(msg.Data, cm)
-	// 	if err != nil {
-	// 		continue
-	// 	}
-
-	// 	//recieve messages to other channels
-	// 	var newMessage event.Message
-	// 	newMessage.Data = cm.data
-	// 	newMessage.Type = cm.topic
-	// 	event.PublishSyncEvent(cm.topic, newMessage)
-	// 	//p2pdbPubSub.SubHandler(cm)
-	// }
+	return sub, topic, nil
 }
 
 func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription) {

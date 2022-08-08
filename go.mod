@@ -3,8 +3,8 @@ module github.com/Rock-liyi/p2pdb-pubsub
 go 1.17
 
 require (
-	github.com/Rock-liyi/p2pdb v0.0.3
-	github.com/Rock-liyi/p2pdb-discovery v0.0.0-20220722063818-588bb555997d
+	github.com/Rock-liyi/p2pdb v0.0.5
+	github.com/Rock-liyi/p2pdb-discovery v0.0.1
 	github.com/libp2p/go-libp2p-core v0.16.1
 	github.com/libp2p/go-libp2p-pubsub v0.7.1
 )
@@ -103,6 +103,7 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/raulk/clock v1.1.0 // indirect
 	github.com/raulk/go-watchdog v1.2.0 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
