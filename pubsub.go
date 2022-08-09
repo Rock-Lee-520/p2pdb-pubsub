@@ -17,7 +17,7 @@ type SubHandler interface {
 	SubHandler(DataMessage)
 }
 
-type PubSubInfterface interface {
+type PubSubInterface interface {
 	InitPub()
 	GetType() string
 	SetType(Type string)
