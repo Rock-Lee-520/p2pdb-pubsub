@@ -8,6 +8,7 @@ import (
 
 	discovery "github.com/Rock-liyi/p2pdb-discovery"
 	"github.com/Rock-liyi/p2pdb/application/event"
+	"github.com/Rock-liyi/p2pdb/infrastructure/util/function"
 	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
 	"github.com/libp2p/go-libp2p-core/host"
 	libpubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -71,7 +72,7 @@ func (p2pdbPubSub *PubSub) InitPub() {
 func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
 	data, err := json.Marshal(message)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	p2pdbPubSub.Topic.Publish(p2pdbPubSub.ctx, data)
 }
@@ -121,7 +122,7 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 
 		//recieve messages to other channels
 		var newMessage event.Message
-		newMessage.Data = cm.Data
+		newMessage.Data = function.JsonEncode(cm.Data)
 		newMessage.Type = cm.Type
 
 		event.PublishSyncEvent(cm.Type, newMessage)
