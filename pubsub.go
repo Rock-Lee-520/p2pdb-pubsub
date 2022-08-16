@@ -18,7 +18,7 @@ type SubHandler interface {
 	SubHandler(DataMessage)
 }
 
-type PubSubInfterface interface {
+type PubSubInterface interface {
 	InitPub()
 	GetType() string
 	SetType(Type string)
@@ -144,6 +144,9 @@ type DataMessage struct {
 
 // initDiscovery
 func (p2pdbPubSub *PubSub) initDiscovery() {
+	if p2pdbPubSub.discovery != nil {
+		return
+	}
 	p2pdbPubSub.discovery = discovery.NewDiscoveryFactory()
 	// create a new libp2p Host that listens on a random TCP port
 	h, err := p2pdbPubSub.discovery.Create(Address)
