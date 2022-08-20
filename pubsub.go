@@ -7,8 +7,6 @@ import (
 	"time"
 
 	discovery "github.com/Rock-liyi/p2pdb-discovery"
-	"github.com/Rock-liyi/p2pdb/application/event"
-	"github.com/Rock-liyi/p2pdb/infrastructure/util/function"
 	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
 	"github.com/libp2p/go-libp2p-core/host"
 	libpubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -48,7 +46,7 @@ func (p2pdbPubSub *PubSub) SetType(Type string) {
 	p2pdbPubSub.Type = Type
 }
 
-func (p2pdbPubSub *PubSub) InitPub() {
+func (p2pdbPubSub *PubSub) InitPub() PubSub {
 	p2pdbPubSub.ctx = context.Background()
 	p2pdbPubSub.initDiscovery()
 
@@ -66,15 +64,23 @@ func (p2pdbPubSub *PubSub) InitPub() {
 		panic(err)
 	}
 	p2pdbPubSub.Topic = topic
-	time.Sleep(5 * time.Second)
+	time.Sleep(3 * time.Second)
+	return *p2pdbPubSub
 }
 
 func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
+	log.Debug("call method PubSub.Pub")
+	log.Debug(message.Type)
+	log.Debug(p2pdbPubSub.GetType())
 	data, err := json.Marshal(message)
 	if err != nil {
 		log.Panic(err)
 	}
-	p2pdbPubSub.Topic.Publish(p2pdbPubSub.ctx, data)
+	err = p2pdbPubSub.Topic.Publish(p2pdbPubSub.ctx, data)
+	if err != nil {
+		log.Panic(err)
+	}
+	//time.Sleep(5 * time.Second)
 }
 
 func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, *libpubsub.Topic, error) {
@@ -119,13 +125,13 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 
 			continue
 		}
-
+		log.Debug(cm)
 		//recieve messages to other channels
-		var newMessage event.Message
-		newMessage.Data = function.JsonEncode(cm.Data)
-		newMessage.Type = cm.Type
+		// var newMessage event.Message
+		// newMessage.Data = function.JsonEncode(cm.Data)
+		// newMessage.Type = cm.Type
 
-		event.PublishSyncEvent(cm.Type, newMessage)
+		// event.PublishSyncEvent(cm.Type, newMessage)
 		//p2pdbPubSub.SubHandler(cm)
 	}
 }
