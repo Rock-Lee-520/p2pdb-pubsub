@@ -17,7 +17,7 @@ type SubHandler interface {
 }
 
 type PubSubInterface interface {
-	InitPub()
+	InitPubSub()
 	GetType() string
 	SetType(Type string)
 	Pub(message DataMessage)
@@ -32,11 +32,16 @@ type PubSub struct {
 	SubHandler SubHandler
 	ctx        context.Context
 	discovery  discovery.Discovery
-	Message    DataMessage
+}
+
+type DataMessage struct {
+	Type string
+	Data interface{}
 }
 
 const GlobalTopic string = ("p2pdb")
-const Address string = "/ip4/0.0.0.0/tcp/0"
+
+//const Address string = "/ip4/0.0.0.0/tcp/0"
 
 func (p2pdbPubSub *PubSub) GetType() string {
 	return p2pdbPubSub.Type
@@ -46,9 +51,17 @@ func (p2pdbPubSub *PubSub) SetType(Type string) {
 	p2pdbPubSub.Type = Type
 }
 
-func (p2pdbPubSub *PubSub) InitPub() PubSub {
+func (p2pdbPubSub *PubSub) SetHost(Host host.Host) {
+	p2pdbPubSub.Host = Host
+}
+
+func (p2pdbPubSub *PubSub) InitPubSub(Type string, Host host.Host) PubSub {
+
 	p2pdbPubSub.ctx = context.Background()
-	p2pdbPubSub.initDiscovery()
+
+	p2pdbPubSub.Host = Host
+	p2pdbPubSub.Type = Type
+	//p2pdbPubSub.initDiscovery()
 
 	// create a new PubSub service using the GossipSub router
 	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
@@ -64,7 +77,12 @@ func (p2pdbPubSub *PubSub) InitPub() PubSub {
 		panic(err)
 	}
 	p2pdbPubSub.Topic = topic
+
+	// and subscribe to it
+	sub, err := topic.Subscribe()
 	time.Sleep(3 * time.Second)
+
+	go p2pdbPubSub.StartNewSubscribeService(sub)
 	return *p2pdbPubSub
 }
 
@@ -83,31 +101,31 @@ func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
 	//time.Sleep(5 * time.Second)
 }
 
-func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, *libpubsub.Topic, error) {
-
-	p2pdbPubSub.ctx = context.Background()
-
-	p2pdbPubSub.initDiscovery()
-
-	// create a new PubSub service using the GossipSub router
-	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Debug("topic is " + GlobalTopic)
-	topic, err := ps.Join(GlobalTopic)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// and subscribe to it
-	sub, err := topic.Subscribe()
-	if err != nil {
-		return nil, nil, err
-	}
-	return sub, topic, nil
-}
+//func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, *libpubsub.Topic, error) {
+//
+//	p2pdbPubSub.ctx = context.Background()
+//
+//	p2pdbPubSub.initDiscovery()
+//
+//	// create a new PubSub service using the GossipSub router
+//	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	log.Debug("topic is " + GlobalTopic)
+//	topic, err := ps.Join(GlobalTopic)
+//	if err != nil {
+//		return nil, nil, err
+//	}
+//
+//	// and subscribe to it
+//	sub, err := topic.Subscribe()
+//	if err != nil {
+//		return nil, nil, err
+//	}
+//	return sub, topic, nil
+//}
 
 func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription) {
 	for {
@@ -125,6 +143,7 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 
 			continue
 		}
+
 		log.Debug(cm)
 		//recieve messages to other channels
 		// var newMessage event.Message
@@ -143,26 +162,22 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 // 	requestId string
 // }
 
-type DataMessage struct {
-	Type string
-	Data interface{}
-}
-
 // initDiscovery
-func (p2pdbPubSub *PubSub) initDiscovery() {
-	if p2pdbPubSub.discovery != nil {
-		return
-	}
-	p2pdbPubSub.discovery = discovery.NewDiscoveryFactory()
-	// create a new libp2p Host that listens on a random TCP port
-	h, err := p2pdbPubSub.discovery.Create(Address)
-	if err != nil {
-		panic(err)
-	}
-	p2pdbPubSub.Host = h
-
-	// setup local mDNS discovery
-	if err := p2pdbPubSub.discovery.SetupDiscovery(p2pdbPubSub.Host); err != nil {
-		panic(err)
-	}
-}
+//func (p2pdbPubSub *PubSub) initDiscovery() {
+//	if p2pdbPubSub.discovery != nil {
+//		return
+//	}
+//	p2pdbPubSub.discovery = discovery.NewDiscoveryFactory()
+//
+//	// create a new libp2p Host that listens on a random TCP port
+//	h, err := p2pdbPubSub.discovery.Create(Address)
+//	if err != nil {
+//		panic(err)
+//	}
+//	p2pdbPubSub.Host = h
+//
+//	// setup local mDNS discovery
+//	if err := p2pdbPubSub.discovery.SetupDiscovery(p2pdbPubSub.Host); err != nil {
+//		panic(err)
+//	}
+//}

@@ -8,10 +8,10 @@ func main() {
 	var Sub = &pubsub.PubSub{}
 	var topicType = "p2pdb"
 	Sub.SetType(topicType)
-	var subscription, _, err = Sub.Sub()
-	if err != nil {
-		panic(err)
-	}
+	//var subscription, _, err = Sub.Sub()
+	//if err != nil {
+	//	panic(err)
+	//}
 
-	Sub.StartNewSubscribeService(subscription)
+	//Sub.StartNewSubscribeService(subscription)
 }
