@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	discovery "github.com/Rock-liyi/p2pdb-discovery"
 	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
 	"github.com/libp2p/go-libp2p-core/host"
 	libpubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -22,7 +21,6 @@ type PubSubInterface interface {
 	SetType(Type string)
 	Pub(message DataMessage)
 	Sub() (*libpubsub.Subscription, *libpubsub.Topic, error)
-	initDiscovery()
 }
 
 type PubSub struct {
@@ -31,7 +29,6 @@ type PubSub struct {
 	Type       string
 	SubHandler SubHandler
 	ctx        context.Context
-	discovery  discovery.Discovery
 }
 
 type DataMessage struct {
