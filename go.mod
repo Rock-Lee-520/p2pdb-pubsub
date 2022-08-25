@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/Rock-liyi/p2pdb v0.0.8
-	github.com/Rock-liyi/p2pdb-discovery v0.0.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/libp2p/go-libp2p-core v0.16.1
 	github.com/libp2p/go-libp2p-kad-dht v0.16.0
