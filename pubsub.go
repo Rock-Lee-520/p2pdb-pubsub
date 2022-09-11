@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/libp2p/go-libp2p-core/peer"
 	discovery "github.com/libp2p/go-libp2p-discovery"
+	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 	"time"
 
 	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
@@ -39,8 +41,6 @@ type DataMessage struct {
 
 const GlobalTopic string = ("p2pdb")
 
-//const Address string = "/ip4/0.0.0.0/tcp/0"
-
 func (p2pdbPubSub *PubSub) GetType() string {
 	return p2pdbPubSub.Type
 }
@@ -53,21 +53,36 @@ func (p2pdbPubSub *PubSub) SetHost(Host host.Host) {
 	p2pdbPubSub.Host = Host
 }
 
+type discoveryNotifee struct {
+	h host.Host
+}
+
+func (d discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
+	fmt.Printf("discovered new peer %s\n", pi.ID.Pretty())
+	err := d.h.Connect(context.Background(), pi)
+	if err != nil {
+		fmt.Printf("error connecting to peer %s: %s\n", pi.ID.Pretty(), err)
+	}
+}
+
 func (p2pdbPubSub *PubSub) InitPubSub(ctx context.Context, Type string, Host host.Host, Routingdiscovery *discovery.RoutingDiscovery) PubSub {
 
 	p2pdbPubSub.ctx = ctx
-
 	p2pdbPubSub.Host = Host
 	p2pdbPubSub.Type = Type
-	//p2pdbPubSub.initDiscovery()
 
-	// create a new PubSub service using the GossipSub router
 	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host, libpubsub.WithDiscovery(Routingdiscovery))
 	if err != nil {
 		panic(err)
 	}
 	if p2pdbPubSub.Type == "" {
 		p2pdbPubSub.Type = GlobalTopic
+	}
+
+	s := mdns.NewMdnsService(p2pdbPubSub.Host, GlobalTopic, &discoveryNotifee{h: p2pdbPubSub.Host})
+	err = s.Start()
+	if err != nil {
+		panic(err)
 	}
 
 	topic, err := ps.Join(p2pdbPubSub.Type)
@@ -103,7 +118,7 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 		msg, err := sub.Next(p2pdbPubSub.ctx)
 		if err != nil {
 			fmt.Printf("error:%s\n", err.Error())
-			panic(err)
+			//panic(err)
 			return
 		}
 
@@ -111,7 +126,6 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 		cm := new(DataMessage)
 		err = json.Unmarshal(msg.Data, cm)
 		if err != nil {
-
 			continue
 		}
 		log.Info("收到消息啦=======")
