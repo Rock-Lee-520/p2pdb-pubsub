@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	discovery "github.com/libp2p/go-libp2p-discovery"
 	"time"
 
 	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
@@ -52,16 +53,16 @@ func (p2pdbPubSub *PubSub) SetHost(Host host.Host) {
 	p2pdbPubSub.Host = Host
 }
 
-func (p2pdbPubSub *PubSub) InitPubSub(Type string, Host host.Host) PubSub {
+func (p2pdbPubSub *PubSub) InitPubSub(ctx context.Context, Type string, Host host.Host, Routingdiscovery *discovery.RoutingDiscovery) PubSub {
 
-	p2pdbPubSub.ctx = context.Background()
+	p2pdbPubSub.ctx = ctx
 
 	p2pdbPubSub.Host = Host
 	p2pdbPubSub.Type = Type
 	//p2pdbPubSub.initDiscovery()
 
 	// create a new PubSub service using the GossipSub router
-	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
+	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host, libpubsub.WithDiscovery(Routingdiscovery))
 	if err != nil {
 		panic(err)
 	}
@@ -95,34 +96,7 @@ func (p2pdbPubSub *PubSub) Pub(message DataMessage) {
 	if err != nil {
 		log.Panic(err)
 	}
-	//time.Sleep(5 * time.Second)
 }
-
-//func (p2pdbPubSub *PubSub) Sub() (*libpubsub.Subscription, *libpubsub.Topic, error) {
-//
-//	p2pdbPubSub.ctx = context.Background()
-//
-//	p2pdbPubSub.initDiscovery()
-//
-//	// create a new PubSub service using the GossipSub router
-//	ps, err := libpubsub.NewGossipSub(p2pdbPubSub.ctx, p2pdbPubSub.Host)
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	log.Debug("topic is " + GlobalTopic)
-//	topic, err := ps.Join(GlobalTopic)
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//
-//	// and subscribe to it
-//	sub, err := topic.Subscribe()
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//	return sub, topic, nil
-//}
 
 func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription) {
 	for {
@@ -140,6 +114,7 @@ func (p2pdbPubSub *PubSub) StartNewSubscribeService(sub *libpubsub.Subscription)
 
 			continue
 		}
+		log.Info("收到消息啦=======")
 
 		log.Debug(cm)
 		//recieve messages to other channels
