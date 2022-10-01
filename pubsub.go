@@ -9,6 +9,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 	discovery "github.com/libp2p/go-libp2p-discovery"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
+	libpubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 	"github.com/mr-tron/base58/base58"
 	"github.com/multiformats/go-multihash"
@@ -17,7 +18,6 @@ import (
 
 	"github.com/Rock-liyi/p2pdb/infrastructure/util/log"
 	"github.com/libp2p/go-libp2p-core/host"
-	libpubsub "github.com/libp2p/go-libp2p-pubsub"
 )
 
 type SubHandler interface {
